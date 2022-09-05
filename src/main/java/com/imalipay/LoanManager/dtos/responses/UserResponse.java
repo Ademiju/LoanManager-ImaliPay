@@ -6,5 +6,7 @@ import lombok.Data;
 public class UserResponse {
     private String fullName;
     private String email;
+    private int age;
+    private String phoneNumber;
     private String Message;
 }
