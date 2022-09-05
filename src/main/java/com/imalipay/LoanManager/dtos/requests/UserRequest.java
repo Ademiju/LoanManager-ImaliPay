@@ -19,8 +19,8 @@ public class UserRequest {
     private String phoneNumber;
     private String contactAddress;
     private int income;
-    private LocalDate dateOfBirth;
-    private Gender gender;
+    private String dateOfBirth;
+    private String gender;
 
 
 }

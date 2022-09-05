@@ -9,9 +9,7 @@ import com.imalipay.LoanManager.datas.repositories.PaymentRepository;
 import com.imalipay.LoanManager.datas.repositories.UserRepository;
 import com.imalipay.LoanManager.dtos.responses.PaymentDetail;
 import com.imalipay.LoanManager.exceptions.InEligibilityException;
-import com.imalipay.LoanManager.exceptions.LoanManagerException;
 import com.imalipay.LoanManager.exceptions.UserNotFoundException;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +21,6 @@ import java.util.List;
 @Service
 public class PaymentServiceImpl implements PaymentService{
 
-    ModelMapper modelMapper = new ModelMapper();
     @Autowired
     LoanRepository loanRepository;
     @Autowired
@@ -35,14 +32,16 @@ public class PaymentServiceImpl implements PaymentService{
     @Override
     public PaymentDetail makePayment(String email, double paymentAmount) {
         User user =  userRepository.findByEmail(email.toLowerCase()).orElseThrow(()->new UserNotFoundException("User does not exist"));
+        if (user.getLoan() == null) throw new InEligibilityException("No Loan Found");
         Loan loan= loanRepository.findById(user.getLoan().getId()).orElseThrow(()-> new InEligibilityException("No pending Loan"));
         PaymentDetail paymentDetail = new PaymentDetail();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Payment payment = new Payment();
         if(paymentAmount > 0 && paymentAmount <= loan.getRepayment().doubleValue()) {
-            Payment payment = new Payment();
             payment.setDate(LocalDate.now());
-            payment.setAmount(BigDecimal.valueOf(paymentAmount));
-            loan.setAmount(loan.getAmount().subtract(payment.getAmount()));
+            payment.setAmountToPay(BigDecimal.valueOf(paymentAmount));
+            payment.setStatus(Status.SUCCESSFUL);
+            loan.setRepayment(loan.getRepayment().subtract(payment.getAmountToPay()));
             paymentRepository.save(payment);
             loan.getPayments().add(payment);
             Loan savedLoan = loanRepository.save(loan);
@@ -51,7 +50,8 @@ public class PaymentServiceImpl implements PaymentService{
 
             paymentDetail.setPaymentStatus(Status.SUCCESSFUL);
             paymentDetail.setPaymentTime(LocalDateTime.now().format(formatter));
-            paymentDetail.setDebtBalance(savedLoan.getAmount());
+            paymentDetail.setAmountPaid(BigDecimal.valueOf(paymentAmount));
+            paymentDetail.setDebtBalance(savedLoan.getRepayment());
             paymentDetail.setDueDate(savedLoan.getDueDate());
             paymentDetail.setLoanStatus(Status.OWING);
             if(savedLoan.getRepayment().intValue() == 0 ) {
@@ -62,17 +62,21 @@ public class PaymentServiceImpl implements PaymentService{
             return paymentDetail;
         }
         paymentDetail.setPaymentTime(LocalDateTime.now().format(formatter));
-        paymentDetail.setDebtBalance(loan.getAmount());
+        paymentDetail.setDebtBalance(loan.getRepayment());
         paymentDetail.setDueDate(loan.getDueDate());
         paymentDetail.setLoanStatus(Status.OWING);
         paymentDetail.setPaymentStatus(Status.DECLINED);
+        payment.setStatus(Status.DECLINED);
+        paymentRepository.save(payment);
+
        return paymentDetail;
     }
 
     @Override
     public List<Payment> searchPayment(String email) {
-        User user= userRepository.findByEmail(email).orElseThrow(()-> new UserNotFoundException("User does not exist"));
-        Loan loan =  loanRepository.findById(user.getLoan().getId()).orElseThrow(()-> new InEligibilityException("No pending Loan"));
+        User user= userRepository.findByEmail(email.toLowerCase()).orElseThrow(()-> new UserNotFoundException("User does not exist"));
+        if (user.getLoan() == null) throw new InEligibilityException("No Loan Found");
+        Loan loan =  loanRepository.findById(user.getLoan().getId()).get();
         return loan.getPayments();
     }
 }

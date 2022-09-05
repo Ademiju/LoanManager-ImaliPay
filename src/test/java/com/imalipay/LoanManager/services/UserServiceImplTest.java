@@ -32,16 +32,16 @@ class UserServiceImplTest {
                 .lastName("User")
                 .phoneNumber("124546")
                 .email("test@mail.com")
-                .dateOfBirth(LocalDate.of(1994,10,3))
-                .gender(Gender.FEMALE).contactAddress("2,testaddress,state,country")
+                .dateOfBirth("1994-10-3")
+                .gender("FEMALE").contactAddress("2,testaddress,state,country")
                 .income(1000000).build();
         second_userRequest = UserRequest.builder()
                 .firstName("Test1")
                 .lastName("User")
                 .phoneNumber("124546")
                 .email("test1@mail.com")
-                .dateOfBirth(LocalDate.of(1994,10,3))
-                .gender(Gender.FEMALE).contactAddress("2,testaddress,state,country")
+                .dateOfBirth("1994-10-3")
+                .gender("FEMALE").contactAddress("2,testaddress,state,country")
                 .income(1000000).build();
 
     }

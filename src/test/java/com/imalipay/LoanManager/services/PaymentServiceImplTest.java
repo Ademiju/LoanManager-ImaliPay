@@ -35,8 +35,8 @@ class PaymentServiceImplTest {
                 .lastName("User")
                 .phoneNumber("124546")
                 .email("test@mail.com")
-                .dateOfBirth(LocalDate.of(1994, 10, 3))
-                .gender(Gender.FEMALE).contactAddress("2,testaddress,state,country")
+                .dateOfBirth("1994-10-3")
+                .gender("FEMALE").contactAddress("2,testaddress,state,country")
                 .income(100000).build();
 
         loanRequest = LoanRequest.builder().email("test@mail.com").amount(49000).durationInMonth(5).build();

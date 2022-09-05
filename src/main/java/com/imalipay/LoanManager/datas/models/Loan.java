@@ -1,9 +1,8 @@
 package com.imalipay.LoanManager.datas.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,7 +23,8 @@ public class Loan {
     @Column(name = "id")
     private Long id;
     @Column(name = "loan_amount")
-    private BigDecimal amount;
+    private BigDecimal loanAmount;
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

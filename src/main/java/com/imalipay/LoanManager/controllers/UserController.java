@@ -27,14 +27,14 @@ public class UserController {
         }
 
     @GetMapping("/admin/search/{emailAddress}")
-    public ResponseEntity<?> findUserByUsername(@PathVariable String emailAddress){
+    public ResponseEntity<?> findUserByEmail(@PathVariable String emailAddress){
         try{
             return new ResponseEntity<>(userService.searchUserByEmail(emailAddress),HttpStatus.FOUND);
         }catch (UserNotFoundException error){
             return new ResponseEntity<>(error.getMessage(),HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/admin/search/{id}")
+    @GetMapping("/admin/search-id/{id}")
     public ResponseEntity<?> findUserById(@PathVariable Long id){
         try{
             return new ResponseEntity<>(userService.searchUserById(id),HttpStatus.FOUND);

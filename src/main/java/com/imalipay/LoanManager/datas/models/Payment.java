@@ -24,7 +24,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private Status status;
     private LocalDate date;
-    private BigDecimal amount;
+    private BigDecimal amountToPay;
 
     @Override
     public boolean equals(Object o) {

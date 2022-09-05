@@ -2,6 +2,8 @@ package com.imalipay.LoanManager.controllers;
 
 import com.imalipay.LoanManager.dtos.requests.LoanRequest;
 import com.imalipay.LoanManager.exceptions.InEligibilityException;
+import com.imalipay.LoanManager.exceptions.LoanManagerException;
+import com.imalipay.LoanManager.exceptions.UserNotFoundException;
 import com.imalipay.LoanManager.services.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,15 +20,19 @@ public class LoanController {
     public ResponseEntity<?> createLoan(@RequestBody LoanRequest loanRequest) {
         try {
             return new ResponseEntity<>(loanService.createLoan(loanRequest), HttpStatus.CREATED);
-        } catch (InEligibilityException error) {
+        } catch (InEligibilityException | UserNotFoundException error) {
             return new ResponseEntity<>(error.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/loan/search/{emailAddress}")
+    @GetMapping("/loan/search/{email}")
 
-    public ResponseEntity<?> searchLoan(@PathVariable String emailAddress){
-        return new ResponseEntity<>(loanService.searchLoanByUserEmail(emailAddress),HttpStatus.OK);
+    public ResponseEntity<?> searchLoan(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(loanService.searchLoanByUserEmail(email), HttpStatus.FOUND);
+        } catch (UserNotFoundException | InEligibilityException error) {
+            return new ResponseEntity<>(error.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

@@ -7,8 +7,6 @@ import com.imalipay.LoanManager.datas.repositories.UserRepository;
 import com.imalipay.LoanManager.dtos.requests.LoanRequest;
 import com.imalipay.LoanManager.dtos.responses.LoanResponse;
 import com.imalipay.LoanManager.exceptions.InEligibilityException;
-import com.imalipay.LoanManager.exceptions.LoanManagerException;
-import com.imalipay.LoanManager.exceptions.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Properties;
 
 @Service
 @Slf4j
@@ -31,7 +28,7 @@ public class LoanServiceImpl implements LoanService{
 
     @Override
     public LoanResponse createLoan(LoanRequest loanRequest) {
-        User user = userService.searchUserByEmail(loanRequest.getEmail());
+        User user = userService.searchUserByEmail(loanRequest.getEmail().toLowerCase());
         LoanResponse loanResponse = new LoanResponse();
         if(user.getAge() >=18){
             if(user.getLoan() == null){
@@ -39,11 +36,11 @@ public class LoanServiceImpl implements LoanService{
                 BigDecimal monthlyIncome = user.getMonthlyIncome();
                 BigDecimal yearlyIncome = monthlyIncome.multiply(BigDecimal.valueOf(12));
                 BigDecimal maxLoanOffer = yearlyIncome.multiply(BigDecimal.valueOf(0.3));
-                if (maxLoanOffer.compareTo(BigDecimal.valueOf(loanRequest.getAmount()))>= 0 && loanRequest.getDurationInMonth() <= 24 ){
+                if (maxLoanOffer.compareTo(BigDecimal.valueOf(loanRequest.getAmount()))> 0 && (loanRequest.getDurationInMonth() > 0 && loanRequest.getDurationInMonth() <= 24 )){
                    Loan loan = new Loan();
                    loan.setUser(user);
                    BigDecimal amountToBorrow = BigDecimal.valueOf(loanRequest.getAmount());
-                   loan.setAmount(amountToBorrow);
+                   loan.setLoanAmount(amountToBorrow);
                    LocalDate dateOfLoanRequest = LocalDate.now();
                    loan.setDate(dateOfLoanRequest);
                    loan.setDueDate(dateOfLoanRequest.plusMonths(loanRequest.getDurationInMonth()));
@@ -72,8 +69,9 @@ public class LoanServiceImpl implements LoanService{
 
     @Override
     public Loan searchLoanByUserEmail(String email) {
-        User user = userService.searchUserByEmail(email);
-        return loanRepository.findById(user.getLoan().getId()).orElseThrow(()-> new LoanManagerException("No Loan Found"));
+        User user = userService.searchUserByEmail(email.toLowerCase());
+        if (user.getLoan() == null) throw new InEligibilityException("No Loan Found");
+        return loanRepository.findById(user.getLoan().getId()).get();
 
     }
 }

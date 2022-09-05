@@ -1,6 +1,5 @@
 package com.imalipay.LoanManager.services;
 
-import com.imalipay.LoanManager.datas.models.Gender;
 import com.imalipay.LoanManager.datas.models.Loan;
 import com.imalipay.LoanManager.dtos.requests.LoanRequest;
 import com.imalipay.LoanManager.dtos.requests.UserRequest;
@@ -39,8 +38,8 @@ class LoanServiceImplTest {
                 .lastName("User")
                 .phoneNumber("124546")
                 .email("test@mail.com")
-                .dateOfBirth(LocalDate.of(1994, 10, 3))
-                .gender(Gender.FEMALE).contactAddress("2,testaddress,state,country")
+                .dateOfBirth("1994-10-3")
+                .gender("FEMALE").contactAddress("2,testaddress,state,country")
                 .income(1000000).build();
 
         userRequest_18 = UserRequest.builder()
@@ -48,8 +47,8 @@ class LoanServiceImplTest {
                 .lastName("User")
                 .phoneNumber("124546")
                 .email("test@mail.com")
-                .dateOfBirth(LocalDate.of(2005, 10, 3))
-                .gender(Gender.FEMALE).contactAddress("2,testaddress,state,country")
+                .dateOfBirth("2005-10-3")
+                .gender("FEMALE").contactAddress("2,testaddress,state,country")
                 .income(1000000).build();
 
          loanRequest = LoanRequest.builder().email("test@mail.com").amount(49000).durationInMonth(5).build();
@@ -105,7 +104,7 @@ class LoanServiceImplTest {
         Loan loanFromDB = loanService.searchLoanByUserEmail("test@mail.com");
         assertThat(loanFromDB.getDueDate(), is(loanResponse.getDueDate()));
         assertThat(loanFromDB.getDurationInMonth(), is(loanResponse.getDurationInMonth()));
-        assertThat(loanFromDB.getAmount().doubleValue(), is(loanResponse.getAmount().doubleValue()));
+        assertThat(loanFromDB.getLoanAmount().doubleValue(), is(loanResponse.getAmount().doubleValue()));
         assertThat(loanFromDB.getRepayment().doubleValue(), is(loanResponse.getRepayment().doubleValue()));
     }
     @Test

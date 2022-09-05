@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;
-    @PostMapping("/payment/{email}")
+    @PostMapping("/payment/pay/{email}")
 
     public ResponseEntity<?> makePayment(@PathVariable String email, @RequestParam  double paymentAmount) {
         try {
