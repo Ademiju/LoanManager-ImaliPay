@@ -19,5 +19,6 @@ public class PaymentDetail {
     private LocalDate dueDate;
     private BigDecimal amountPaid;
     private BigDecimal DebtBalance;
+    private String message;
 
 }

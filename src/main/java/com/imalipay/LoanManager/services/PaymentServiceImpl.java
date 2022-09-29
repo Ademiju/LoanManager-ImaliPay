@@ -18,6 +18,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class PaymentServiceImpl implements PaymentService{
 
@@ -41,6 +43,7 @@ public class PaymentServiceImpl implements PaymentService{
             payment.setDate(LocalDate.now());
             payment.setAmountToPay(BigDecimal.valueOf(paymentAmount));
             payment.setStatus(Status.SUCCESSFUL);
+            payment.setMessage(paymentAmount+" Successfully paid");
             loan.setRepayment(loan.getRepayment().subtract(payment.getAmountToPay()));
             paymentRepository.save(payment);
             loan.getPayments().add(payment);
@@ -54,6 +57,8 @@ public class PaymentServiceImpl implements PaymentService{
             paymentDetail.setDebtBalance(savedLoan.getRepayment());
             paymentDetail.setDueDate(savedLoan.getDueDate());
             paymentDetail.setLoanStatus(Status.OWING);
+            paymentDetail.setMessage(payment.getMessage());
+
             if(savedLoan.getRepayment().intValue() == 0 ) {
                 paymentDetail.setLoanStatus(Status.LOAN_COMPLETELY_PAID);
                 user.setLoan(null);
@@ -66,8 +71,15 @@ public class PaymentServiceImpl implements PaymentService{
         paymentDetail.setDueDate(loan.getDueDate());
         paymentDetail.setLoanStatus(Status.OWING);
         paymentDetail.setPaymentStatus(Status.DECLINED);
+        paymentDetail.setMessage(paymentAmount+" is negative or above required repayment amount");
         payment.setStatus(Status.DECLINED);
+        payment.setDate(LocalDate.now());
+        payment.setMessage(paymentDetail.getMessage());
         paymentRepository.save(payment);
+        loan.getPayments().add(payment);
+        Loan savedLoan = loanRepository.save(loan);
+        user.setLoan(savedLoan);
+        userRepository.save(user);
 
        return paymentDetail;
     }

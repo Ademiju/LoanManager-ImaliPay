@@ -25,6 +25,7 @@ public class Payment {
     private Status status;
     private LocalDate date;
     private BigDecimal amountToPay;
+    private String message;
 
     @Override
     public boolean equals(Object o) {
